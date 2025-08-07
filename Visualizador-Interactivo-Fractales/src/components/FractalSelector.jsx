@@ -1,10 +1,35 @@
 import React, { useMemo, useCallback } from 'react';
 
+// Componente para botón de fractal optimizado
+const FractalButton = React.memo(({ fractal, isSelected, onClick }) => {
+  const handleClick = useCallback(() => {
+    onClick(fractal.id);
+  }, [fractal.id, onClick]);
+
+  return (
+    <button
+      type="button"
+      className={`modern-fractal-btn ${isSelected ? 'active' : ''}`}
+      onClick={handleClick}
+    >
+      <div className="fractal-icon">
+        <i className={fractal.icon}></i>
+      </div>
+      <span className="fractal-name">{fractal.name}</span>
+      {isSelected && (
+        <div className="selection-indicator">
+          <i className="bi bi-check-circle-fill"></i>
+        </div>
+      )}
+    </button>
+  );
+});
+
 /**
- * Componente FractalSelector - Selector de tipo de fractal optimizado
+ * Selector de tipo de fractal
  */
 const FractalSelector = React.memo(({ selectedFractal, onFractalChange }) => {
-  // Lista de fractales disponibles memoizada
+  // Lista de fractales disponibles
   const fractals = useMemo(() => [
     { id: 'mandelbrot', name: 'Mandelbrot', icon: 'bi-circle' },
     { id: 'julia', name: 'Julia', icon: 'bi-droplet' },
@@ -13,7 +38,7 @@ const FractalSelector = React.memo(({ selectedFractal, onFractalChange }) => {
     { id: 'tree', name: 'Árbol', icon: 'bi-tree' }
   ], []);
 
-  // Handler optimizado para evitar recreaciones
+  // Manejador de cambio de fractal
   const handleClick = useCallback((fractalId) => {
     if (fractalId !== selectedFractal) {
       onFractalChange(fractalId);
@@ -21,14 +46,20 @@ const FractalSelector = React.memo(({ selectedFractal, onFractalChange }) => {
   }, [selectedFractal, onFractalChange]);
 
   return (
-    <div className="fractal-selector">
-      <h6 className="text-secondary mb-3 fw-semibold">
-        <i className="bi bi-collection me-2"></i>
-        Tipo de Fractal
-      </h6>
+    <div className="controls-panel modern-panel fractal-selector-panel">
+      <div className="panel-header">
+        <div className="header-content">
+          <div className="header-icon">
+            <i className="bi bi-collection"></i>
+          </div>
+          <div className="header-text">
+            <h6 className="panel-title">Tipo de Fractal</h6>
+            <span className="panel-subtitle">Selecciona un fractal</span>
+          </div>
+        </div>
+      </div>
       
-      {/* Grid de botones para fractales */}
-      <div className="fractal-grid">
+      <div className="modern-fractal-grid">
         {fractals.map(fractal => (
           <FractalButton
             key={fractal.id}
@@ -41,35 +72,5 @@ const FractalSelector = React.memo(({ selectedFractal, onFractalChange }) => {
     </div>
   );
 });
-
-// Componente botón individual optimizado
-const FractalButton = React.memo(({ fractal, isSelected, onClick }) => {
-  const handleClick = useCallback(() => {
-    onClick(fractal.id);
-  }, [fractal.id, onClick]);
-
-  const buttonClassName = useMemo(() => 
-    `fractal-btn ${isSelected ? 'active' : ''}`,
-    [isSelected]
-  );
-
-  return (
-    <button
-      type="button"
-      className={buttonClassName}
-      onClick={handleClick}
-      aria-pressed={isSelected}
-      aria-label={`Seleccionar fractal ${fractal.name}`}
-      title={`Fractal ${fractal.name}`}
-    >
-      <i className={`${fractal.icon} fs-4 mb-2`}></i>
-      <div className="small fw-medium">{fractal.name}</div>
-    </button>
-  );
-});
-
-// Nombres para debugging
-FractalSelector.displayName = 'FractalSelector';
-FractalButton.displayName = 'FractalButton';
 
 export default FractalSelector;

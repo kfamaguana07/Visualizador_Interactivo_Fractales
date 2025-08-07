@@ -1,38 +1,132 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
+
+// Componente para controles de slider optimizado
+const SliderControl = React.memo(({ config, onChange }) => {
+  const handleChange = useCallback((e) => {
+    onChange(config.key, e.target.value);
+  }, [config.key, onChange]);
+
+  const handleDecrement = useCallback(() => {
+    const newValue = Math.max(config.min, config.value - config.step);
+    onChange(config.key, newValue);
+  }, [config.key, config.value, config.min, config.step, onChange]);
+
+  const handleIncrement = useCallback(() => {
+    const newValue = Math.min(config.max, config.value + config.step);
+    onChange(config.key, newValue);
+  }, [config.key, config.value, config.max, config.step, onChange]);
+
+  const percentage = ((config.value - config.min) / (config.max - config.min)) * 100;
+
+  return (
+    <div className="modern-control-card">
+      <div className="control-header">
+        <label className="control-label">{config.label}</label>
+        <div className="value-badge">{config.displayValue}</div>
+      </div>
+      
+      <div className="control-body">
+        <button
+          type="button"
+          className="control-btn"
+          onClick={handleDecrement}
+          disabled={config.value <= config.min}
+        >
+          <i className="bi bi-dash"></i>
+        </button>
+        
+        <div className="slider-container">
+          <input
+            type="range"
+            className="modern-slider"
+            min={config.min}
+            max={config.max}
+            step={config.step}
+            value={config.value}
+            onChange={handleChange}
+            style={{
+              background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${percentage}%, #e2e8f0 ${percentage}%, #e2e8f0 100%)`
+            }}
+          />
+        </div>
+        
+        <button
+          type="button"
+          className="control-btn"
+          onClick={handleIncrement}
+          disabled={config.value >= config.max}
+        >
+          <i className="bi bi-plus"></i>
+        </button>
+      </div>
+    </div>
+  );
+});
+
+// Componente para selector de color optimizado
+const ColorPicker = React.memo(({ currentColor, presetColors, onChange }) => {
+  const handleColorClick = useCallback((color) => {
+    onChange(color);
+  }, [onChange]);
+
+  const handleColorInputChange = useCallback((e) => {
+    onChange(e.target.value);
+  }, [onChange]);
+
+  return (
+    <div className="modern-control-card color-picker-card">
+      <div className="control-header">
+        <label className="control-label">Color</label>
+        <div className="color-preview" style={{ backgroundColor: currentColor }}></div>
+      </div>
+      
+      <div className="color-picker-body">
+        <div className="preset-colors">
+          {presetColors.map((color) => (
+            <button
+              key={color}
+              type="button"
+              className={`modern-color-dot ${currentColor === color ? 'active' : ''}`}
+              style={{ backgroundColor: color }}
+              onClick={() => handleColorClick(color)}
+            >
+              {currentColor === color && <i className="bi bi-check"></i>}
+            </button>
+          ))}
+        </div>
+        
+        <div className="custom-color-wrapper">
+          <label className="custom-color-label">Personalizado</label>
+          <input
+            type="color"
+            className="modern-color-input"
+            value={currentColor}
+            onChange={handleColorInputChange}
+          />
+        </div>
+      </div>
+    </div>
+  );
+});
 
 /**
- * Hook personalizado para debouncing de funciones
+ * Panel de control principal para parámetros del fractal
  */
-const useDebounce = (callback, delay) => {
-  const timeoutRef = useRef();
-
-  return useCallback((...args) => {
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => callback(...args), delay);
-  }, [callback, delay]);
-};
-
-/**
- * Componente ControlsPanel - Panel de control optimizado
- */
-const ControlsPanel = React.memo(({ fractalParams, onParameterChange }) => {
-  // Debounce para sliders que pueden cambiar frecuentemente
-  const debouncedParameterChange = useDebounce(onParameterChange, 50);
-
-  // Handlers optimizados con useCallback
+const ControlsPanel = React.memo(({ fractalParams, onParameterChange, selectedFractal }) => {
+  // Manejadores de cambios optimizados
   const handleSliderChange = useCallback((param, value) => {
-    const parsedValue = parseFloat(value);
-    debouncedParameterChange(param, parsedValue);
-  }, [debouncedParameterChange]);
+    onParameterChange(param, parseFloat(value));
+  }, [onParameterChange]);
 
   const handleColorChange = useCallback((color) => {
     onParameterChange('color', color);
   }, [onParameterChange]);
 
+  // Resetear parámetros a valores por defecto
   const resetParameters = useCallback(() => {
     const defaults = {
-      iterations: 100,
-      zoom: 1,
+      iterations: 5,
+      zoom: 0.5,
       rotation: 0,
       translateX: 0,
       translateY: 0,
@@ -44,65 +138,85 @@ const ControlsPanel = React.memo(({ fractalParams, onParameterChange }) => {
     });
   }, [onParameterChange]);
 
-  // Colores predeterminados memoizados
+  // Colores predefinidos
   const presetColors = useMemo(() => [
     '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
     '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'
   ], []);
 
-  // Configuración de controles memoizada
-  const controlsConfig = useMemo(() => [
-    {
-      key: 'iterations',
-      label: 'Iteraciones',
-      min: 10,
-      max: 1000,
-      step: 10,
-      value: fractalParams.iterations,
-      displayValue: fractalParams.iterations,
-      badgeClass: 'bg-primary'
-    },
-    {
-      key: 'zoom',
-      label: 'Zoom',
-      min: 0.1,
-      max: 10,
-      step: 0.1,
-      value: fractalParams.zoom,
-      displayValue: `${fractalParams.zoom.toFixed(1)}x`,
-      badgeClass: 'bg-success'
-    },
-    {
-      key: 'rotation',
-      label: 'Rotación',
-      min: 0,
-      max: 360,
-      step: 1,
-      value: fractalParams.rotation,
-      displayValue: `${fractalParams.rotation}°`,
-      badgeClass: 'bg-warning'
-    }
-  ], [fractalParams.iterations, fractalParams.zoom, fractalParams.rotation]);
+  // Configuración de controles según el fractal seleccionado
+  const controlsConfig = useMemo(() => {
+    // Configuración específica por fractal
+    const fractalConfigs = {
+      tree: {
+        iterations: { max: 20, label: 'Profundidad' },
+        zoom: { max: 2, label: 'Escalar' }
+      },
+      sierpinski: {
+        iterations: { max: 7, label: 'Profundidad' },
+        zoom: { max: 3, label: 'Escalar' }
+      },
+      koch: {
+        iterations: { max: 10, label: 'Profundidad' },
+        zoom: { max: 6, label: 'Escalar' }
+      },
+      default: {
+        iterations: { max: 20, label: 'Profundidad' },
+        zoom: { max: 2, label: 'Escalar' }
+      }
+    };
+
+    const config = fractalConfigs[selectedFractal] || fractalConfigs.default;
+
+    return [
+      {
+        key: 'iterations',
+        label: config.iterations.label,
+        min: 0,
+        max: config.iterations.max,
+        step: 1,
+        value: fractalParams.iterations,
+        displayValue: fractalParams.iterations
+      },
+      {
+        key: 'zoom',
+        label: config.zoom.label,
+        min: 0,
+        max: config.zoom.max,
+        step: 0.1,
+        value: fractalParams.zoom,
+        displayValue: `${fractalParams.zoom.toFixed(1)}x`
+      },
+      {
+        key: 'rotation',
+        label: 'Rotación',
+        min: 0,
+        max: 360,
+        step: 1,
+        value: fractalParams.rotation,
+        displayValue: `${fractalParams.rotation}°`
+      }
+    ];
+  }, [fractalParams.iterations, fractalParams.zoom, fractalParams.rotation, selectedFractal]);
 
   return (
-    <div className="controls-panel">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h6 className="text-secondary mb-0 fw-semibold">
-          <i className="bi bi-sliders me-2"></i>
-          Parámetros
-        </h6>
-        <button 
-          className="btn btn-outline-secondary btn-sm"
-          onClick={resetParameters}
-          title="Resetear parámetros"
-          aria-label="Resetear todos los parámetros"
-        >
+    <div className="controls-panel modern-panel">
+      <div className="panel-header">
+        <div className="header-content">
+          <div className="header-icon">
+            <i className="bi bi-sliders"></i>
+          </div>
+          <div className="header-text">
+            <h6 className="panel-title">Parámetros</h6>
+            <span className="panel-subtitle">Controles del Fractal</span>
+          </div>
+        </div>
+        <button className="reset-btn" onClick={resetParameters}>
           <i className="bi bi-arrow-clockwise"></i>
         </button>
       </div>
 
-      <div className="controls-grid">
-        {/* Controles principales */}
+      <div className="modern-controls-grid">
         {controlsConfig.map(control => (
           <SliderControl
             key={control.key}
@@ -111,25 +225,6 @@ const ControlsPanel = React.memo(({ fractalParams, onParameterChange }) => {
           />
         ))}
 
-        {/* Posición X e Y */}
-        <div className="row mb-4">
-          <div className="col-6">
-            <PositionControl
-              label="Pos X"
-              value={fractalParams.translateX}
-              onChange={(value) => handleSliderChange('translateX', value)}
-            />
-          </div>
-          <div className="col-6">
-            <PositionControl
-              label="Pos Y"
-              value={fractalParams.translateY}
-              onChange={(value) => handleSliderChange('translateY', value)}
-            />
-          </div>
-        </div>
-
-        {/* Selector de Color */}
         <ColorPicker
           currentColor={fractalParams.color}
           presetColors={presetColors}
@@ -139,128 +234,5 @@ const ControlsPanel = React.memo(({ fractalParams, onParameterChange }) => {
     </div>
   );
 });
-
-// Componente optimizado para controles de slider
-const SliderControl = React.memo(({ config, onChange }) => {
-  const handleChange = useCallback((e) => {
-    onChange(config.key, e.target.value);
-  }, [config.key, onChange]);
-
-  return (
-    <div className="control-item mb-4">
-      <div className="d-flex justify-content-between mb-2">
-        <label className="small text-muted">{config.label}</label>
-        <span className={`badge ${config.badgeClass} small`}>
-          {config.displayValue}
-        </span>
-      </div>
-      <input
-        type="range"
-        className="form-range"
-        min={config.min}
-        max={config.max}
-        step={config.step}
-        value={config.value}
-        onChange={handleChange}
-        aria-label={`${config.label} slider`}
-      />
-    </div>
-  );
-});
-
-// Componente optimizado para controles de posición
-const PositionControl = React.memo(({ label, value, onChange }) => {
-  const handleChange = useCallback((e) => {
-    onChange(e.target.value);
-  }, [onChange]);
-
-  const displayValue = useMemo(() => value.toFixed(1), [value]);
-
-  return (
-    <>
-      <div className="d-flex justify-content-between mb-2">
-        <label className="small text-muted">{label}</label>
-        <span className="small text-muted">{displayValue}</span>
-      </div>
-      <input
-        type="range"
-        className="form-range"
-        min="-5"
-        max="5"
-        step="0.1"
-        value={value}
-        onChange={handleChange}
-        aria-label={`${label} position slider`}
-      />
-    </>
-  );
-});
-
-// Componente optimizado para selector de color
-const ColorPicker = React.memo(({ currentColor, presetColors, onChange }) => {
-  const handleColorClick = useCallback((color) => {
-    onChange(color);
-  }, [onChange]);
-
-  const handleColorInputChange = useCallback((e) => {
-    onChange(e.target.value);
-  }, [onChange]);
-
-  return (
-    <div className="control-item">
-      <label className="small text-muted mb-2 d-block">Color</label>
-      <div className="color-picker-simple">
-        <div className="d-flex gap-2 mb-2">
-          {presetColors.map((color, index) => (
-            <ColorDot
-              key={color}
-              color={color}
-              isActive={currentColor === color}
-              onClick={handleColorClick}
-            />
-          ))}
-        </div>
-        <input
-          type="color"
-          className="form-control form-control-color"
-          value={currentColor}
-          onChange={handleColorInputChange}
-          aria-label="Color picker"
-        />
-      </div>
-    </div>
-  );
-});
-
-// Componente optimizado para cada punto de color
-const ColorDot = React.memo(({ color, isActive, onClick }) => {
-  const handleClick = useCallback(() => {
-    onClick(color);
-  }, [color, onClick]);
-
-  const className = useMemo(() => 
-    `color-dot ${isActive ? 'active' : ''}`,
-    [isActive]
-  );
-
-  return (
-    <button
-      type="button"
-      className={className}
-      style={{ backgroundColor: color }}
-      onClick={handleClick}
-      title={`Color ${color}`}
-      aria-label={`Seleccionar color ${color}`}
-      aria-pressed={isActive}
-    />
-  );
-});
-
-// Nombres para debugging
-ControlsPanel.displayName = 'ControlsPanel';
-SliderControl.displayName = 'SliderControl';
-PositionControl.displayName = 'PositionControl';
-ColorPicker.displayName = 'ColorPicker';
-ColorDot.displayName = 'ColorDot';
 
 export default ControlsPanel;

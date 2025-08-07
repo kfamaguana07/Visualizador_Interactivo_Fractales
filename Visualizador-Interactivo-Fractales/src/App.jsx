@@ -1,30 +1,33 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import FractalSelector from './components/FractalSelector';
 import ControlsPanel from './components/ControlsPanel';
 import SaveButton from './components/SaveButton';
-import './index.css';
-import './custom.css';
-import './performance.css';
+import TreeFractal from './fractals/TreeFractal';
+import SierpinskiFractal from './fractals/SierpinskiFractal';
+import KochFractal from './fractals/KochFractal';
+import './styles.css';
 
+/**
+ * Aplicación principal del visualizador de fractales
+ */
 function App() {
-  // Estados principales de la aplicación
+  // Estados principales
   const [selectedFractal, setSelectedFractal] = useState('mandelbrot');
   const [darkMode, setDarkMode] = useState(() => {
-    // Inicializar con preferencia del sistema o localStorage
     return localStorage.getItem('darkMode') === 'true' || 
            (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
   
   const [fractalParams, setFractalParams] = useState({
-    iterations: 100,
-    zoom: 1,
+    iterations: 5,
+    zoom: 0.5,
     rotation: 0,
     translateX: 0,
     translateY: 0,
     color: '#3B82F6'
   });
 
-  // Función optimizada para actualizar parámetros del fractal
+  // Manejadores de eventos optimizados
   const handleParameterChange = useCallback((param, value) => {
     setFractalParams(prev => ({
       ...prev,
@@ -32,12 +35,31 @@ function App() {
     }));
   }, []);
 
-  // Función optimizada para cambio de fractal
   const handleFractalChange = useCallback((fractalId) => {
     setSelectedFractal(fractalId);
+    
+    // Ajustar parámetros según límites del fractal seleccionado
+    setFractalParams(prev => {
+      const newParams = { ...prev };
+      
+      if (fractalId === 'sierpinski') {
+        // Límites para Sierpinski: iteraciones max 7, zoom max 3
+        newParams.iterations = Math.min(prev.iterations, 7);
+        newParams.zoom = Math.min(prev.zoom, 3);
+      } else if (fractalId === 'tree') {
+        // Límites para Árbol: iteraciones max 20, zoom max 2
+        newParams.iterations = Math.min(prev.iterations, 20);
+        newParams.zoom = Math.min(prev.zoom, 2);
+      } else if (fractalId === 'koch') {
+        // Límites para Koch: iteraciones max 10, zoom max 6
+        newParams.iterations = Math.min(prev.iterations, 10);
+        newParams.zoom = Math.min(prev.zoom, 6);
+      }
+      
+      return newParams;
+    });
   }, []);
 
-  // Toggle dark mode optimizado con persistencia
   const toggleDarkMode = useCallback(() => {
     setDarkMode(prev => {
       const newMode = !prev;
@@ -46,48 +68,82 @@ function App() {
     });
   }, []);
 
-  // Aplicar clase CSS de manera eficiente
-  const containerClassName = useMemo(() => 
-    `app-container ${darkMode ? 'dark-mode' : ''}`, 
-    [darkMode]
-  );
-
-  // Datos estáticos memoizados
-  const appTitle = useMemo(() => ({
-    title: 'Fractales',
-    subtitle: 'Visualizador Interactivo'
-  }), []);
+  // Renderizar fractal seleccionado
+  const renderFractal = () => {
+    switch (selectedFractal) {
+      case 'tree':
+        return (
+          <TreeFractal
+            iterations={fractalParams.iterations}
+            zoom={fractalParams.zoom}
+            rotation={fractalParams.rotation}
+            translateX={fractalParams.translateX}
+            translateY={fractalParams.translateY}
+            color={fractalParams.color}
+          />
+        );
+      case 'sierpinski':
+        return (
+          <SierpinskiFractal
+            iterations={fractalParams.iterations}
+            zoom={fractalParams.zoom}
+            rotation={fractalParams.rotation}
+            translateX={fractalParams.translateX}
+            translateY={fractalParams.translateY}
+            color={fractalParams.color}
+          />
+        );
+      case 'koch':
+        return (
+          <KochFractal
+            iterations={fractalParams.iterations}
+            zoom={fractalParams.zoom}
+            rotation={fractalParams.rotation}
+            translateX={fractalParams.translateX}
+            translateY={fractalParams.translateY}
+            color={fractalParams.color}
+          />
+        );
+      default:
+        return (
+          <div className="canvas-placeholder">
+            <div className="placeholder-content">
+              <i className="bi bi-bezier2 display-1 text-primary mb-3"></i>
+              <h3 className="text-primary mb-3">Visualizador de Fractales</h3>
+              <p className="text-muted mb-4">
+                Fractal "{selectedFractal}" en desarrollo. <br />
+                Selecciona "Árbol", "Sierpinski" o "Koch" para ver los fractales implementados.
+              </p>
+            </div>
+          </div>
+        );
+    }
+  };
 
   return (
-    <div className={containerClassName}>
-      {/* Main Content */}
+    <div className={`app-container ${darkMode ? 'dark-mode' : ''}`}>
       <div className="container-fluid main-content p-0">
         <div className="row g-0 h-100">
-          {/* Panel de Control - Sidebar con scroll */}
+          {/* Panel de Control */}
           <div className="col-xl-3 col-lg-4 col-md-5 sidebar-panel">
             <div className="sidebar-header">
-              {/* Título de la aplicación */}
               <div className="app-title">
                 <h2 className="text-primary fw-bold mb-1">
                   <i className="bi bi-diagram-3 me-2"></i>
-                  {appTitle.title}
+                  Fractales
                 </h2>
-                <p className="text-muted small mb-0">{appTitle.subtitle}</p>
+                <p className="text-muted small mb-0">Visualizador Interactivo</p>
               </div>
 
-              {/* Toggle Dark Mode */}
               <button 
                 className="btn btn-outline-secondary btn-sm dark-mode-toggle"
                 onClick={toggleDarkMode}
-                title={darkMode ? 'Modo claro' : 'Modo oscuro'}
-                aria-label={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
               >
                 <i className={`bi ${darkMode ? 'bi-sun' : 'bi-moon'}`}></i>
               </button>
             </div>
 
             <div className="sidebar-content">
-              {/* Selector de Fractal */}
               <div className="mb-4">
                 <FractalSelector 
                   selectedFractal={selectedFractal}
@@ -95,15 +151,14 @@ function App() {
                 />
               </div>
 
-              {/* Panel de Controles */}
               <div className="mb-4">
                 <ControlsPanel 
                   fractalParams={fractalParams}
                   onParameterChange={handleParameterChange}
+                  selectedFractal={selectedFractal}
                 />
               </div>
 
-              {/* Botón de Guardado */}
               <div className="mb-4">
                 <SaveButton 
                   selectedFractal={selectedFractal}
@@ -113,23 +168,10 @@ function App() {
             </div>
           </div>
 
-          {/* Área de Visualización - Fixed */}
+          {/* Área de Visualización */}
           <div className="col-xl-9 col-lg-8 col-md-7 visualization-area">
             <div className="canvas-container">
-              <div className="canvas-placeholder">
-                <div className="placeholder-content">
-                  <i className="bi bi-bezier2 display-1 text-primary mb-3"></i>
-                  <h3 className="text-primary mb-3">Visualizador de Fractales</h3>
-                  <p className="text-muted mb-4">
-                    Selecciona un fractal y ajusta los parámetros para comenzar la visualización
-                  </p>
-                  <div className="loading-animation">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Cargando...</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {renderFractal()}
             </div>
           </div>
         </div>
@@ -138,4 +180,4 @@ function App() {
   );
 }
 
-export default React.memo(App);
+export default App;

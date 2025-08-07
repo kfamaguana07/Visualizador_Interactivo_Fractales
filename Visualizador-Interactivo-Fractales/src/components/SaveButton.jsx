@@ -1,114 +1,125 @@
 import React, { useState, useCallback, useMemo } from 'react';
 
+// Componente para información de guardado
+const SaveInfo = React.memo(({ fileName, isSaving }) => {
+  return (
+    <div className="modern-save-info">
+      <div className="save-info-item">
+        <span className="info-label">Resolución:</span>
+        <span className="info-value">Canvas nativo</span>
+      </div>
+      <div className="save-info-item">
+        <span className="info-label">Formato:</span>
+        <span className="info-value">PNG</span>
+      </div>
+      <div className="save-info-item">
+        <span className="info-label">Archivo:</span>
+        <span className="info-value file-name">
+          {isSaving ? 'Procesando...' : fileName}
+        </span>
+      </div>
+    </div>
+  );
+});
+
 /**
- * Componente SaveButton optimizado - Botón para guardar PNG
+ * Botón para guardar fractal como PNG
  */
 const SaveButton = React.memo(({ selectedFractal, fractalParams }) => {
   const [isSaving, setIsSaving] = useState(false);
 
-  // Handler optimizado para el guardado
+  // Función para guardar el fractal como PNG
   const handleSave = useCallback(async () => {
     if (isSaving) return;
     
     setIsSaving(true);
     
     try {
-      // Simulación del proceso de guardado
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const canvas = document.querySelector('.fractal-canvas');
+      if (!canvas) {
+        throw new Error('No se encontró el canvas del fractal');
+      }
       
-      // En el futuro aquí se implementará la lógica real de guardado
-      console.log('Guardando fractal:', {
-        type: selectedFractal,
-        params: fractalParams,
-        timestamp: new Date().toISOString()
-      });
+      // Crear canvas temporal con fondo blanco
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
       
-      // Mostrar notificación de éxito
-      console.log('Fractal guardado exitosamente como PNG');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      
+      // Fondo blanco para mejor contraste
+      tempCtx.fillStyle = '#ffffff';
+      tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      tempCtx.drawImage(canvas, 0, 0);
+      
+      // Generar nombre de archivo y descargar
+      const dataURL = tempCanvas.toDataURL('image/png', 1.0);
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+      const fileName = `fractal_${selectedFractal}_prof${fractalParams.iterations}_${timestamp}.png`;
+      
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = dataURL;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      tempCanvas.remove();
       
     } catch (error) {
       console.error('Error al guardar el fractal:', error);
+      alert('Error al guardar el fractal. Intenta nuevamente.');
     } finally {
       setIsSaving(false);
     }
   }, [isSaving, selectedFractal, fractalParams]);
 
-  // Nombre del archivo generado dinámicamente
+  // Nombre del archivo generado
   const fileName = useMemo(() => {
     const timestamp = new Date().toISOString().slice(0, 10);
-    return `fractal_${selectedFractal}_${timestamp}.png`;
-  }, [selectedFractal]);
-
-  // Contenido del botón memoizado
-  const buttonContent = useMemo(() => {
-    if (isSaving) {
-      return (
-        <>
-          <span className="spinner-border spinner-border-sm me-2" role="status">
-            <span className="visually-hidden">Guardando...</span>
-          </span>
-          Guardando...
-        </>
-      );
-    }
-    
-    return (
-      <>
-        <i className="bi bi-download me-2"></i>
-        Guardar PNG
-      </>
-    );
-  }, [isSaving]);
-
-  // Clase CSS del botón optimizada
-  const buttonClassName = useMemo(() => 
-    `btn btn-success w-100 ${isSaving ? 'disabled' : ''}`,
-    [isSaving]
-  );
+    return `fractal_${selectedFractal}_prof${fractalParams.iterations}_${timestamp}.png`;
+  }, [selectedFractal, fractalParams.iterations]);
 
   return (
-    <div className="save-button-container">
-      <h6 className="text-secondary mb-3 fw-semibold">
-        <i className="bi bi-download me-2"></i>
-        Exportar
-      </h6>
+    <div className="controls-panel modern-panel save-panel">
+      <div className="panel-header">
+        <div className="header-content">
+          <div className="header-icon">
+            <i className="bi bi-download"></i>
+          </div>
+          <div className="header-text">
+            <h6 className="panel-title">Exportar</h6>
+            <span className="panel-subtitle">Descargar fractal</span>
+          </div>
+        </div>
+      </div>
       
-      <button
-        type="button"
-        className={buttonClassName}
-        onClick={handleSave}
-        disabled={isSaving}
-        title={`Guardar como ${fileName}`}
-        aria-label={`Guardar fractal ${selectedFractal} como PNG`}
-      >
-        {buttonContent}
-      </button>
-      
-      <SaveInfo fileName={fileName} isSaving={isSaving} />
+      <div className="save-panel-body">
+        <button
+          type="button"
+          className={`modern-save-btn ${isSaving ? 'saving' : ''}`}
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          <div className="save-btn-content">
+            {isSaving ? (
+              <>
+                <div className="save-spinner"></div>
+                <span>Guardando...</span>
+              </>
+            ) : (
+              <>
+                <i className="bi bi-download"></i>
+                <span>Descargar PNG</span>
+              </>
+            )}
+          </div>
+        </button>
+        
+        <SaveInfo fileName={fileName} isSaving={isSaving} />
+      </div>
     </div>
   );
 });
-
-// Componente separado para la información de guardado
-const SaveInfo = React.memo(({ fileName, isSaving }) => {
-  const infoText = useMemo(() => {
-    if (isSaving) {
-      return 'Procesando imagen...';
-    }
-    return `Archivo: ${fileName}`;
-  }, [fileName, isSaving]);
-
-  return (
-    <small className="text-muted d-block text-center mt-2">
-      <div>Resolución: 1920x1080</div>
-      <div className="mt-1">{infoText}</div>
-    </small>
-  );
-});
-
-// Nombres para debugging
-// Nombres para debugging
-SaveButton.displayName = 'SaveButton';
-SaveInfo.displayName = 'SaveInfo';
 
 export default SaveButton;
