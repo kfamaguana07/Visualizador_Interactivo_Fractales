@@ -293,14 +293,40 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.custom-color-wrapper:hover {
+  background: rgba(236, 241, 247, 0.95);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.custom-color-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
 }
 
 .modern-color-input {
   width: 48px;
   height: 32px;
-  border: none;
+  border: 2px solid rgba(226, 232, 240, 0.8);
   border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.modern-color-input:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: scale(1.05);
+}
+
+.modern-color-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 /* ========================================
@@ -421,6 +447,27 @@
 .info-value {
   font-weight: 500;
   color: var(--text-primary);
+}
+
+.file-name {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+
+.save-description {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #4f46e5;
+}
+
+.save-description i {
+  font-size: 12px;
 }
 
 /* ========================================

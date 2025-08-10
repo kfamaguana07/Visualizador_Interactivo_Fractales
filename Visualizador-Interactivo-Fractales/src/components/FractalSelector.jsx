@@ -31,10 +31,10 @@ const FractalButton = React.memo(({ fractal, isSelected, onClick }) => {
 const FractalSelector = React.memo(({ selectedFractal, onFractalChange }) => {
   // Lista de fractales disponibles
   const fractals = useMemo(() => [
-    { id: 'mandelbrot', name: 'Mandelbrot', icon: 'bi-circle' },
-    { id: 'julia', name: 'Julia', icon: 'bi-droplet' },
+    { id: 'mandelbrot', name: 'Mandelbrot', icon: 'bi-infinity' },
+    { id: 'julia', name: 'Julia', icon: 'bi-circle-half' },
     { id: 'sierpinski', name: 'Sierpinski', icon: 'bi-triangle' },
-    { id: 'koch', name: 'Koch', icon: 'bi-lightning' },
+    { id: 'koch', name: 'Koch', icon: 'bi-snow' },
     { id: 'tree', name: 'Árbol', icon: 'bi-tree' }
   ], []);
 

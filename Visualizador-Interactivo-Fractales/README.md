@@ -42,6 +42,12 @@ Este proyecto forma parte del curso de **Gráfica Computacional** y tiene como o
 - **Traslación**: Movimiento en ejes X e Y (-5 a 5 unidades)
 - **Color**: Selector de paleta personalizable con presets
 
+### ⌨️ Controles de Teclado
+- **Flechas Izquierda/Derecha**: Rotación del fractal (±5° por pulsación)
+- **Flechas Arriba/Abajo**: Ajustar profundidad/iteraciones (±10 por pulsación)
+- **Scroll del Ratón**: Zoom in/out dinámico
+- **Arrastrar con Ratón**: Traslación libre del fractal
+
 ### 🎨 Interfaz de Usuario
 - **Diseño Responsive** - Compatible con dispositivos móviles y desktop
 - **Material Design** - Interfaz moderna con efectos glassmorphism

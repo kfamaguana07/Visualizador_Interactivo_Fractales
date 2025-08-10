@@ -1,27 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
 
-// Componente para información de guardado
-const SaveInfo = React.memo(({ fileName, isSaving }) => {
-  return (
-    <div className="modern-save-info">
-      <div className="save-info-item">
-        <span className="info-label">Resolución:</span>
-        <span className="info-value">Canvas nativo</span>
-      </div>
-      <div className="save-info-item">
-        <span className="info-label">Formato:</span>
-        <span className="info-value">PNG</span>
-      </div>
-      <div className="save-info-item">
-        <span className="info-label">Archivo:</span>
-        <span className="info-value file-name">
-          {isSaving ? 'Procesando...' : fileName}
-        </span>
-      </div>
-    </div>
-  );
-});
-
 /**
  * Botón para guardar fractal como PNG
  */
@@ -115,8 +93,6 @@ const SaveButton = React.memo(({ selectedFractal, fractalParams }) => {
             )}
           </div>
         </button>
-        
-        <SaveInfo fileName={fileName} isSaving={isSaving} />
       </div>
     </div>
   );

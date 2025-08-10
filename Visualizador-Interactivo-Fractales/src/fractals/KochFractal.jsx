@@ -9,12 +9,66 @@ const KochFractal = React.memo(({
   rotation = 0, 
   translateX = 0, 
   translateY = 0, 
-  color = '#3B82F6' 
+  color = '#3B82F6',
+  onParameterChange
 }) => {
   const canvasRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [currentTranslate, setCurrentTranslate] = useState({ x: translateX, y: translateY });
+
+  // Keyboard controls
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!onParameterChange) return;
+      
+      switch(e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          onParameterChange('rotation', Math.max(0, rotation - 5));
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          onParameterChange('rotation', Math.min(360, rotation + 5));
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          onParameterChange('iterations', Math.min(8, iterations + 1));
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          onParameterChange('iterations', Math.max(0, iterations - 1));
+          break;
+      }
+    };
+
+    const handleWheel = (e) => {
+      if (!onParameterChange) return;
+      e.preventDefault();
+      
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      const newZoom = Math.max(0.1, Math.min(10, zoom * zoomFactor));
+      onParameterChange('zoom', newZoom);
+    };
+
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener('wheel', handleWheel);
+      window.addEventListener('keydown', handleKeyDown);
+      
+      return () => {
+        canvas.removeEventListener('wheel', handleWheel);
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [rotation, iterations, zoom, onParameterChange]);
+
+  // Sincronizar el estado local con las props
+  useEffect(() => {
+    if (currentTranslate.x !== translateX || currentTranslate.y !== translateY) {
+      setCurrentTranslate({ x: translateX, y: translateY });
+    }
+  }, [translateX, translateY]);
 
   // Generador de colores para diferentes niveles de la curva
   const generateColorVariations = useCallback((baseColor, maxIterations) => {
@@ -69,6 +123,36 @@ const KochFractal = React.memo(({
   }, []);
 
   /**
+   * Calcular los puntos críticos para la transformación de Koch hacia afuera
+   */
+  const kochPointsOutward = useCallback((p1, p2) => {
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    
+    // Punto a 1/3 del camino
+    const a = {
+      x: p1.x + dx / 3,
+      y: p1.y + dy / 3
+    };
+    
+    // Punto a 2/3 del camino  
+    const d = {
+      x: p1.x + 2 * dx / 3,
+      y: p1.y + 2 * dy / 3
+    };
+    
+    // Punto del pico del triángulo (rotación de 60 grados hacia AFUERA)
+    const angle = Math.atan2(dy, dx) + Math.PI / 3; // Cambio de signo para ir hacia afuera
+    const length = Math.sqrt(dx * dx + dy * dy) / 3;
+    const b = {
+      x: a.x + length * Math.cos(angle),
+      y: a.y + length * Math.sin(angle)
+    };
+    
+    return [a, b, d];
+  }, []);
+
+  /**
    * Calcular los puntos críticos para la transformación de Koch
    */
   const kochPoints = useCallback((p1, p2) => {
@@ -99,6 +183,21 @@ const KochFractal = React.memo(({
   }, []);
 
   /**
+   * Generar segmentos de Koch hacia afuera recursivamente
+   */
+  const kochSegmentOutward = useCallback((p1, p2, depth) => {
+    if (depth === 0) return [[p1, p2]];
+    
+    const [a, b, d] = kochPointsOutward(p1, p2);
+    return [
+      ...kochSegmentOutward(p1, a, depth - 1),
+      ...kochSegmentOutward(a, b, depth - 1),
+      ...kochSegmentOutward(b, d, depth - 1),
+      ...kochSegmentOutward(d, p2, depth - 1)
+    ];
+  }, [kochPointsOutward]);
+
+  /**
    * Generar segmentos de Koch recursivamente
    */
   const kochSegment = useCallback((p1, p2, depth) => {
@@ -114,7 +213,7 @@ const KochFractal = React.memo(({
   }, [kochPoints]);
 
   /**
-   * Crear el triángulo de Koch (3 curvas formando un triángulo)
+   * Crear el copo de nieve de Koch (triángulo con curvas de Koch hacia afuera)
    */
   const generarTrianguloKoch = useCallback((centerX, centerY, size, profundidad) => {
     const height = size * Math.sqrt(3) / 2; // Altura del triángulo equilátero
@@ -142,10 +241,10 @@ const KochFractal = React.memo(({
         lado3: [vertices[2], vertices[0]]  // Lado derecho
       };
     } else {
-      // Para profundidades mayores, aplicar Koch a cada lado
-      const segments1 = kochSegment(vertices[0], vertices[1], profundidad - 1);
-      const segments2 = kochSegment(vertices[1], vertices[2], profundidad - 1);
-      const segments3 = kochSegment(vertices[2], vertices[0], profundidad - 1);
+      // Para profundidades mayores, aplicar Koch a cada lado hacia AFUERA
+      const segments1 = kochSegmentOutward(vertices[0], vertices[1], profundidad - 1);
+      const segments2 = kochSegmentOutward(vertices[1], vertices[2], profundidad - 1);
+      const segments3 = kochSegmentOutward(vertices[2], vertices[0], profundidad - 1);
       
       // Convertir segmentos a puntos conectados
       const lado1 = [segments1[0][0]];
@@ -163,7 +262,7 @@ const KochFractal = React.memo(({
         lado3: lado3.slice(0, -1)
       };
     }
-  }, [kochSegment]);
+  }, [kochSegmentOutward]);
 
   /**
    * Función para dibujar una curva de puntos

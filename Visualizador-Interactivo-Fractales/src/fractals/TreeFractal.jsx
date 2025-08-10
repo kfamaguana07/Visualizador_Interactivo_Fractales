@@ -9,12 +9,66 @@ const TreeFractal = React.memo(({
   rotation = 0, 
   translateX = 0, 
   translateY = 0, 
-  color = '#3B82F6' 
+  color = '#3B82F6',
+  onParameterChange
 }) => {
   const canvasRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [currentTranslate, setCurrentTranslate] = useState({ x: translateX, y: translateY });
+
+  // Keyboard controls
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!onParameterChange) return;
+      
+      switch(e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          onParameterChange('rotation', Math.max(0, rotation - 5));
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          onParameterChange('rotation', Math.min(360, rotation + 5));
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          onParameterChange('iterations', Math.min(15, iterations + 1));
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          onParameterChange('iterations', Math.max(0, iterations - 1));
+          break;
+      }
+    };
+
+    const handleWheel = (e) => {
+      if (!onParameterChange) return;
+      e.preventDefault();
+      
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      const newZoom = Math.max(0.1, Math.min(10, zoom * zoomFactor));
+      onParameterChange('zoom', newZoom);
+    };
+
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener('wheel', handleWheel);
+      window.addEventListener('keydown', handleKeyDown);
+      
+      return () => {
+        canvas.removeEventListener('wheel', handleWheel);
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [rotation, iterations, zoom, onParameterChange]);
+
+  // Sincronizar el estado local con las props
+  useEffect(() => {
+    if (currentTranslate.x !== translateX || currentTranslate.y !== translateY) {
+      setCurrentTranslate({ x: translateX, y: translateY });
+    }
+  }, [translateX, translateY]);
 
   // Generador de colores para diferentes niveles del árbol
   const generateColorVariations = useCallback((baseColor, maxIterations) => {

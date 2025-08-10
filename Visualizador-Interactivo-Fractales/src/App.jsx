@@ -21,7 +21,7 @@ function App() {
   });
   
   const [fractalParams, setFractalParams] = useState({
-    iterations: 5,
+    iterations: 15,
     zoom: 0.5,
     rotation: 0,
     translateX: 0,
@@ -40,25 +40,48 @@ function App() {
   const handleFractalChange = useCallback((fractalId) => {
     setSelectedFractal(fractalId);
     
-    // Ajustar parámetros según límites del fractal seleccionado
+    // Establecer valores por defecto específicos para cada fractal
     setFractalParams(prev => {
-      const newParams = { ...prev };
+      const baseParams = {
+        rotation: 0,
+        translateX: 0,
+        translateY: 0,
+        color: '#3B82F6'
+      };
       
-      if (fractalId === 'sierpinski') {
-        // Límites para Sierpinski: iteraciones max 7, zoom max 3
-        newParams.iterations = Math.min(prev.iterations, 7);
-        newParams.zoom = Math.min(prev.zoom, 3);
+      if (fractalId === 'mandelbrot') {
+        return {
+          ...baseParams,
+          iterations: 15,
+          zoom: 0.5
+        };
+      } else if (fractalId === 'julia') {
+        return {
+          ...baseParams,
+          iterations: 30,
+          zoom: 0.5
+        };
       } else if (fractalId === 'tree') {
-        // Límites para Árbol: iteraciones max 20, zoom max 2
-        newParams.iterations = Math.min(prev.iterations, 20);
-        newParams.zoom = Math.min(prev.zoom, 2);
+        return {
+          ...baseParams,
+          iterations: 5,
+          zoom: 0.5
+        };
+      } else if (fractalId === 'sierpinski') {
+        return {
+          ...baseParams,
+          iterations: 5,
+          zoom: 0.5
+        };
       } else if (fractalId === 'koch') {
-        // Límites para Koch: iteraciones max 10, zoom max 6
-        newParams.iterations = Math.min(prev.iterations, 10);
-        newParams.zoom = Math.min(prev.zoom, 6);
+        return {
+          ...baseParams,
+          iterations: 5,
+          zoom: 0.5
+        };
       }
       
-      return newParams;
+      return prev;
     });
   }, []);
 
@@ -78,7 +101,7 @@ function App() {
           <MandelbrotFractal
             width={900}
             height={600}
-            maxIterations={Math.max(1, fractalParams.iterations + 1)}
+            maxIterations={fractalParams.iterations}
             zoom={fractalParams.zoom}
             offsetX={fractalParams.translateX / 200}
             offsetY={fractalParams.translateY / 200}
@@ -86,6 +109,7 @@ function App() {
             color={fractalParams.color}
             translateX={fractalParams.translateX}
             translateY={fractalParams.translateY}
+            onParameterChange={handleParameterChange}
           />
         );
       case 'julia':
@@ -93,7 +117,7 @@ function App() {
           <JuliaFractal
             width={900}
             height={600}
-            maxIterations={Math.max(1, fractalParams.iterations + 1)}
+            maxIterations={fractalParams.iterations}
             zoom={fractalParams.zoom}
             offsetX={fractalParams.translateX / 200}
             offsetY={fractalParams.translateY / 200}
@@ -101,6 +125,7 @@ function App() {
             color={fractalParams.color}
             translateX={fractalParams.translateX}
             translateY={fractalParams.translateY}
+            onParameterChange={handleParameterChange}
           />
         );
       case 'tree':
@@ -112,6 +137,7 @@ function App() {
             translateX={fractalParams.translateX}
             translateY={fractalParams.translateY}
             color={fractalParams.color}
+            onParameterChange={handleParameterChange}
           />
         );
       case 'sierpinski':
@@ -123,6 +149,7 @@ function App() {
             translateX={fractalParams.translateX}
             translateY={fractalParams.translateY}
             color={fractalParams.color}
+            onParameterChange={handleParameterChange}
           />
         );
       case 'koch':
@@ -134,6 +161,7 @@ function App() {
             translateX={fractalParams.translateX}
             translateY={fractalParams.translateY}
             color={fractalParams.color}
+            onParameterChange={handleParameterChange}
           />
         );
       default:
