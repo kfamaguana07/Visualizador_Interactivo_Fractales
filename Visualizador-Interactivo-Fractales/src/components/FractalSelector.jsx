@@ -1,6 +1,8 @@
 import React, { useMemo, useCallback } from 'react';
 
-// Componente para botón de fractal optimizado
+/**
+ * Componente para botón de fractal optimizado
+ */
 const FractalButton = React.memo(({ fractal, isSelected, onClick }) => {
   const handleClick = useCallback(() => {
     onClick(fractal.id);
@@ -29,7 +31,6 @@ const FractalButton = React.memo(({ fractal, isSelected, onClick }) => {
  * Selector de tipo de fractal
  */
 const FractalSelector = React.memo(({ selectedFractal, onFractalChange }) => {
-  // Lista de fractales disponibles
   const fractals = useMemo(() => [
     { id: 'mandelbrot', name: 'Mandelbrot', icon: 'bi-infinity' },
     { id: 'julia', name: 'Julia', icon: 'bi-circle-half' },
@@ -38,7 +39,9 @@ const FractalSelector = React.memo(({ selectedFractal, onFractalChange }) => {
     { id: 'tree', name: 'Árbol', icon: 'bi-tree' }
   ], []);
 
-  // Manejador de cambio de fractal
+  /**
+   * Maneja el cambio de fractal seleccionado
+   */
   const handleClick = useCallback((fractalId) => {
     if (fractalId !== selectedFractal) {
       onFractalChange(fractalId);

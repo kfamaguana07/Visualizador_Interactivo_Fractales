@@ -13,7 +13,6 @@ import './styles.css';
  * Aplicación principal del visualizador de fractales
  */
 function App() {
-  // Estados principales
   const [selectedFractal, setSelectedFractal] = useState('mandelbrot');
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('darkMode') === 'true' || 
@@ -29,7 +28,9 @@ function App() {
     color: '#3B82F6'
   });
 
-  // Manejadores de eventos optimizados
+  /**
+   * Maneja cambios en los parámetros del fractal
+   */
   const handleParameterChange = useCallback((param, value) => {
     setFractalParams(prev => ({
       ...prev,
@@ -37,10 +38,12 @@ function App() {
     }));
   }, []);
 
+  /**
+   * Maneja el cambio de tipo de fractal
+   */
   const handleFractalChange = useCallback((fractalId) => {
     setSelectedFractal(fractalId);
     
-    // Establecer valores por defecto específicos para cada fractal
     setFractalParams(prev => {
       const baseParams = {
         rotation: 0,
@@ -50,41 +53,24 @@ function App() {
       };
       
       if (fractalId === 'mandelbrot') {
-        return {
-          ...baseParams,
-          iterations: 15,
-          zoom: 0.5
-        };
+        return { ...baseParams, iterations: 15, zoom: 0.5 };
       } else if (fractalId === 'julia') {
-        return {
-          ...baseParams,
-          iterations: 30,
-          zoom: 0.5
-        };
+        return { ...baseParams, iterations: 30, zoom: 0.5 };
       } else if (fractalId === 'tree') {
-        return {
-          ...baseParams,
-          iterations: 5,
-          zoom: 0.5
-        };
+        return { ...baseParams, iterations: 5, zoom: 0.5 };
       } else if (fractalId === 'sierpinski') {
-        return {
-          ...baseParams,
-          iterations: 5,
-          zoom: 0.5
-        };
+        return { ...baseParams, iterations: 5, zoom: 0.5 };
       } else if (fractalId === 'koch') {
-        return {
-          ...baseParams,
-          iterations: 5,
-          zoom: 0.5
-        };
+        return { ...baseParams, iterations: 5, zoom: 0.5 };
       }
       
       return prev;
     });
   }, []);
 
+  /**
+   * Alterna entre modo claro y oscuro
+   */
   const toggleDarkMode = useCallback(() => {
     setDarkMode(prev => {
       const newMode = !prev;
@@ -93,7 +79,9 @@ function App() {
     });
   }, []);
 
-  // Renderizar fractal seleccionado
+  /**
+   * Renderiza el fractal seleccionado
+   */
   const renderFractal = () => {
     switch (selectedFractal) {
       case 'mandelbrot':
@@ -184,7 +172,6 @@ function App() {
     <div className={`app-container ${darkMode ? 'dark-mode' : ''}`}>
       <div className="container-fluid main-content p-0">
         <div className="row g-0 h-100">
-          {/* Panel de Control */}
           <div className="col-xl-3 col-lg-4 col-md-5 sidebar-panel">
             <div className="sidebar-header">
               <div className="app-title">
@@ -229,7 +216,6 @@ function App() {
             </div>
           </div>
 
-          {/* Área de Visualización */}
           <div className="col-xl-9 col-lg-8 col-md-7 visualization-area">
             <div className="canvas-container">
               {renderFractal()}

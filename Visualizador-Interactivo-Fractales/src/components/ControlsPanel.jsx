@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 
-// Componente para controles de slider optimizado
+/**
+ * Componente para controles de slider optimizado
+ */
 const SliderControl = React.memo(({ config, onChange }) => {
   const handleChange = useCallback((e) => {
     onChange(config.key, parseFloat(e.target.value));
@@ -61,7 +63,9 @@ const SliderControl = React.memo(({ config, onChange }) => {
   );
 });
 
-// Componente para selector de color optimizado
+/**
+ * Componente para selector de color optimizado
+ */
 const ColorPicker = React.memo(({ currentColor, onChange }) => {
   const presetColors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
 

@@ -1,7 +1,9 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
-// Utilidad para convertir color HEX a RGB
+/**
+ * Convierte color HEX a RGB
+ */
 function hexToRgb(hex) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -18,7 +20,9 @@ const MandelbrotFractal = ({ width = 900, height = 600, maxIterations = 100, zoo
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [currentTranslate, setCurrentTranslate] = useState({ x: translateX, y: translateY });
 
-  // Keyboard controls
+  /**
+   * Maneja controles de teclado
+   */
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!onParameterChange) return;
@@ -64,14 +68,18 @@ const MandelbrotFractal = ({ width = 900, height = 600, maxIterations = 100, zoo
     }
   }, [rotation, maxIterations, zoom, onParameterChange]);
 
-  // Sincronizar el estado local con las props
+  /**
+   * Sincroniza el estado local con las props
+   */
   useEffect(() => {
     if (currentTranslate.x !== translateX || currentTranslate.y !== translateY) {
       setCurrentTranslate({ x: translateX, y: translateY });
     }
   }, [translateX, translateY]);
 
-  // Dibuja el fractal de Mandelbrot
+  /**
+   * Dibuja el fractal de Mandelbrot
+   */
   const drawMandelbrot = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -79,32 +87,27 @@ const MandelbrotFractal = ({ width = 900, height = 600, maxIterations = 100, zoo
     const imgData = ctx.createImageData(width, height);
     const data = imgData.data;
 
-    // Si las iteraciones son 0, no dibujar nada (canvas transparente)
     if (maxIterations <= 0) {
       for (let i = 0; i < data.length; i += 4) {
-        data[i] = 0;     // R
-        data[i + 1] = 0; // G
-        data[i + 2] = 0; // B
-        data[i + 3] = 0; // A (transparente)
+        data[i] = 0;
+        data[i + 1] = 0;
+        data[i + 2] = 0;
+        data[i + 3] = 0;
       }
       ctx.putImageData(imgData, 0, 0);
       return;
     }
 
-    // Precalcular seno y coseno para la rotación
     const angle = (rotation * Math.PI) / 180;
     const cosA = Math.cos(angle);
     const sinA = Math.sin(angle);
 
-    // Paleta basada en el color seleccionado
     const baseRgb = hexToRgb(color);
 
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
-        // Coordenadas centradas
         let nx = (x - width / 2) * (4 / width) / zoom;
         let ny = (y - height / 2) * (4 / width) / zoom;
-        // Aplicar rotación (arrastre invertido para que sea intuitivo)
         let re = nx * cosA - ny * sinA + offsetX - currentTranslate.x / 200;
         let im = nx * sinA + ny * cosA + offsetY - currentTranslate.y / 200;
         let cRe = re;
@@ -120,30 +123,32 @@ const MandelbrotFractal = ({ width = 900, height = 600, maxIterations = 100, zoo
         }
         const idx = 4 * (y * width + x);
         if (n === maxIterations) {
-          // Color de fondo transparente para usar el fondo del contenedor
           data[idx] = 0;
           data[idx + 1] = 0;
           data[idx + 2] = 0;
-          data[idx + 3] = 0; // Transparente
+          data[idx + 3] = 0;
         } else {
-          // Gradiente del color base con intensidad basada en iteraciones
           const factor = Math.min(1, n / Math.max(1, maxIterations * 0.8));
           data[idx] = Math.round(baseRgb.r * factor);
           data[idx + 1] = Math.round(baseRgb.g * factor);
           data[idx + 2] = Math.round(baseRgb.b * factor);
-          data[idx + 3] = Math.round(255 * Math.pow(factor, 0.5)); // Transparencia gradual
+          data[idx + 3] = Math.round(255 * Math.pow(factor, 0.5));
         }
       }
     }
     ctx.putImageData(imgData, 0, 0);
   }, [width, height, maxIterations, zoom, currentTranslate, rotation, color]);
 
-  // Redibuja cuando cambian parámetros
+  /**
+   * Redibuja cuando cambian parámetros
+   */
   useEffect(() => {
     drawMandelbrot();
   }, [drawMandelbrot, color]);
 
-  // Arrastre con mouse
+  /**
+   * Maneja arrastre con mouse
+   */
   const handleMouseDown = (e) => {
     setIsDragging(true);
     setDragStart({ x: e.clientX - currentTranslate.x, y: e.clientY - currentTranslate.y });
@@ -156,7 +161,9 @@ const MandelbrotFractal = ({ width = 900, height = 600, maxIterations = 100, zoo
   };
   const handleMouseUp = () => setIsDragging(false);
 
-  // Arrastre touch
+  /**
+   * Maneja arrastre con touch
+   */
   const handleTouchStart = (e) => {
     const touch = e.touches[0];
     setIsDragging(true);
@@ -172,16 +179,16 @@ const MandelbrotFractal = ({ width = 900, height = 600, maxIterations = 100, zoo
   };
   const handleTouchEnd = () => setIsDragging(false);
 
-  // Zoom con rueda del mouse (deshabilitado para evitar conflicto con el panel)
+  /**
+   * Maneja zoom con rueda del mouse
+   */
   const handleWheel = (e) => {
     e.preventDefault();
-    // Si quieres permitir zoom con la rueda, aquí podrías emitir un callback al panel
-    // pero por ahora solo se controla desde el panel
   };
 
-
-
-  // Eventos
+  /**
+   * Configura eventos de mouse y touch
+   */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -203,7 +210,6 @@ const MandelbrotFractal = ({ width = 900, height = 600, maxIterations = 100, zoo
     };
   }, [handleMouseMove, handleTouchMove]);
 
-  // Info
   return (
     <div className="fractal-canvas-container">
       <canvas

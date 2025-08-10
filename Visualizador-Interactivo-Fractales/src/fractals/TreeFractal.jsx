@@ -17,7 +17,9 @@ const TreeFractal = React.memo(({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [currentTranslate, setCurrentTranslate] = useState({ x: translateX, y: translateY });
 
-  // Keyboard controls
+  /**
+   * Maneja controles de teclado
+   */
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!onParameterChange) return;
