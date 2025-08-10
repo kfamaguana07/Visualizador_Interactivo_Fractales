@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 /**
  * Botón para guardar fractal como PNG
  */
-const SaveButton = React.memo(({ selectedFractal, fractalParams }) => {
+const SaveButton = React.memo(({ selectedFractal, fractalParams, darkMode }) => {
   const [isSaving, setIsSaving] = useState(false);
 
   // Función para guardar el fractal como PNG
@@ -18,15 +18,24 @@ const SaveButton = React.memo(({ selectedFractal, fractalParams }) => {
         throw new Error('No se encontró el canvas del fractal');
       }
       
-      // Crear canvas temporal con fondo blanco
+      // Crear canvas temporal con el fondo apropiado según el modo
       const tempCanvas = document.createElement('canvas');
       const tempCtx = tempCanvas.getContext('2d');
       
       tempCanvas.width = canvas.width;
       tempCanvas.height = canvas.height;
       
-      // Fondo blanco para mejor contraste
-      tempCtx.fillStyle = '#ffffff';
+      // Usar el color de fondo apropiado según el modo
+      if (darkMode) {
+        // Fondo oscuro para modo dark (gradiente como en el CSS)
+        const gradient = tempCtx.createLinearGradient(0, 0, tempCanvas.width, tempCanvas.height);
+        gradient.addColorStop(0, '#0f172a');
+        gradient.addColorStop(1, '#1e293b');
+        tempCtx.fillStyle = gradient;
+      } else {
+        // Fondo blanco para modo claro
+        tempCtx.fillStyle = '#ffffff';
+      }
       tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       tempCtx.drawImage(canvas, 0, 0);
       
@@ -50,7 +59,7 @@ const SaveButton = React.memo(({ selectedFractal, fractalParams }) => {
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, selectedFractal, fractalParams]);
+  }, [isSaving, selectedFractal, fractalParams, darkMode]);
 
   // Nombre del archivo generado
   const fileName = useMemo(() => {

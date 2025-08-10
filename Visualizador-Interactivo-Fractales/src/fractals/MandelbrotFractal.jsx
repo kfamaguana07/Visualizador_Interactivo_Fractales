@@ -1,6 +1,14 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 
+// Utilidad para convertir color HEX a RGB
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return { r, g, b };
+}
+
 /**
  * Fractal de Mandelbrot interactivo con zoom y arrastre
  */
@@ -64,15 +72,6 @@ const MandelbrotFractal = ({ width = 900, height = 600, maxIterations = 100, zoo
   }, [translateX, translateY]);
 
   // Dibuja el fractal de Mandelbrot
-
-// Utilidad para convertir color HEX a RGB
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return { r, g, b };
-}
-
   const drawMandelbrot = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;

@@ -223,6 +223,7 @@ function App() {
                 <SaveButton 
                   selectedFractal={selectedFractal}
                   fractalParams={fractalParams}
+                  darkMode={darkMode}
                 />
               </div>
             </div>
