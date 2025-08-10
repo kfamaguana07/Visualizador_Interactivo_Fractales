@@ -5,6 +5,7 @@ import SaveButton from './components/SaveButton';
 import TreeFractal from './fractals/TreeFractal';
 import SierpinskiFractal from './fractals/SierpinskiFractal';
 import KochFractal from './fractals/KochFractal';
+import MandelbrotFractal from './fractals/MandelbrotFractal';
 import './styles.css';
 
 /**
@@ -71,6 +72,21 @@ function App() {
   // Renderizar fractal seleccionado
   const renderFractal = () => {
     switch (selectedFractal) {
+      case 'mandelbrot':
+        return (
+          <MandelbrotFractal
+            width={900}
+            height={600}
+            maxIterations={Math.max(1, fractalParams.iterations + 1)}
+            zoom={fractalParams.zoom}
+            offsetX={fractalParams.translateX / 200}
+            offsetY={fractalParams.translateY / 200}
+            rotation={fractalParams.rotation}
+            color={fractalParams.color}
+            translateX={fractalParams.translateX}
+            translateY={fractalParams.translateY}
+          />
+        );
       case 'tree':
         return (
           <TreeFractal
@@ -112,7 +128,7 @@ function App() {
               <h3 className="text-primary mb-3">Visualizador de Fractales</h3>
               <p className="text-muted mb-4">
                 Fractal "{selectedFractal}" en desarrollo. <br />
-                Selecciona "Árbol", "Sierpinski" o "Koch" para ver los fractales implementados.
+                Selecciona "Árbol", "Sierpinski", "Koch" o "Mandelbrot" para ver los fractales implementados.
               </p>
             </div>
           </div>

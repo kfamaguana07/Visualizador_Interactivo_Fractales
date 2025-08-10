@@ -3,17 +3,15 @@ import React, { useCallback, useMemo } from 'react';
 // Componente para controles de slider optimizado
 const SliderControl = React.memo(({ config, onChange }) => {
   const handleChange = useCallback((e) => {
-    onChange(config.key, e.target.value);
+    onChange(config.key, parseFloat(e.target.value));
   }, [config.key, onChange]);
 
   const handleDecrement = useCallback(() => {
-    const newValue = Math.max(config.min, config.value - config.step);
-    onChange(config.key, newValue);
+    onChange(config.key, Math.max(config.min, config.value - config.step));
   }, [config.key, config.value, config.min, config.step, onChange]);
 
   const handleIncrement = useCallback(() => {
-    const newValue = Math.min(config.max, config.value + config.step);
-    onChange(config.key, newValue);
+    onChange(config.key, Math.min(config.max, config.value + config.step));
   }, [config.key, config.value, config.max, config.step, onChange]);
 
   const percentage = ((config.value - config.min) / (config.max - config.min)) * 100;
@@ -64,14 +62,11 @@ const SliderControl = React.memo(({ config, onChange }) => {
 });
 
 // Componente para selector de color optimizado
-const ColorPicker = React.memo(({ currentColor, presetColors, onChange }) => {
-  const handleColorClick = useCallback((color) => {
-    onChange(color);
-  }, [onChange]);
+const ColorPicker = React.memo(({ currentColor, onChange }) => {
+  const presetColors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
 
-  const handleColorInputChange = useCallback((e) => {
-    onChange(e.target.value);
-  }, [onChange]);
+  const handleColorClick = useCallback((color) => onChange(color), [onChange]);
+  const handleColorInputChange = useCallback((e) => onChange(e.target.value), [onChange]);
 
   return (
     <div className="modern-control-card color-picker-card">
@@ -113,57 +108,18 @@ const ColorPicker = React.memo(({ currentColor, presetColors, onChange }) => {
  * Panel de control principal para parámetros del fractal
  */
 const ControlsPanel = React.memo(({ fractalParams, onParameterChange, selectedFractal }) => {
-  // Manejadores de cambios optimizados
-  const handleSliderChange = useCallback((param, value) => {
-    onParameterChange(param, parseFloat(value));
-  }, [onParameterChange]);
-
-  const handleColorChange = useCallback((color) => {
-    onParameterChange('color', color);
-  }, [onParameterChange]);
-
-  // Resetear parámetros a valores por defecto
   const resetParameters = useCallback(() => {
-    const defaults = {
-      iterations: 5,
-      zoom: 0.5,
-      rotation: 0,
-      translateX: 0,
-      translateY: 0,
-      color: '#3B82F6'
-    };
-    
-    Object.entries(defaults).forEach(([param, value]) => {
-      onParameterChange(param, value);
-    });
+    const defaults = { iterations: 5, zoom: 0.5, rotation: 0, translateX: 0, translateY: 0, color: '#3B82F6' };
+    Object.entries(defaults).forEach(([param, value]) => onParameterChange(param, value));
   }, [onParameterChange]);
 
-  // Colores predefinidos
-  const presetColors = useMemo(() => [
-    '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
-    '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'
-  ], []);
-
-  // Configuración de controles según el fractal seleccionado
   const controlsConfig = useMemo(() => {
-    // Configuración específica por fractal
     const fractalConfigs = {
-      tree: {
-        iterations: { max: 20, label: 'Profundidad' },
-        zoom: { max: 2, label: 'Escalar' }
-      },
-      sierpinski: {
-        iterations: { max: 7, label: 'Profundidad' },
-        zoom: { max: 3, label: 'Escalar' }
-      },
-      koch: {
-        iterations: { max: 10, label: 'Profundidad' },
-        zoom: { max: 6, label: 'Escalar' }
-      },
-      default: {
-        iterations: { max: 20, label: 'Profundidad' },
-        zoom: { max: 2, label: 'Escalar' }
-      }
+      tree: { iterations: { max: 20 }, zoom: { max: 2 } },
+      sierpinski: { iterations: { max: 7 }, zoom: { max: 3 } },
+      koch: { iterations: { max: 10 }, zoom: { max: 6 } },
+      mandelbrot: { iterations: { max: 40 }, zoom: { max: 3 } },
+      default: { iterations: { max: 20 }, zoom: { max: 2 } }
     };
 
     const config = fractalConfigs[selectedFractal] || fractalConfigs.default;
@@ -171,7 +127,7 @@ const ControlsPanel = React.memo(({ fractalParams, onParameterChange, selectedFr
     return [
       {
         key: 'iterations',
-        label: config.iterations.label,
+        label: 'Profundidad',
         min: 0,
         max: config.iterations.max,
         step: 1,
@@ -180,7 +136,7 @@ const ControlsPanel = React.memo(({ fractalParams, onParameterChange, selectedFr
       },
       {
         key: 'zoom',
-        label: config.zoom.label,
+        label: 'Escalar',
         min: 0,
         max: config.zoom.max,
         step: 0.1,
@@ -197,7 +153,7 @@ const ControlsPanel = React.memo(({ fractalParams, onParameterChange, selectedFr
         displayValue: `${fractalParams.rotation}°`
       }
     ];
-  }, [fractalParams.iterations, fractalParams.zoom, fractalParams.rotation, selectedFractal]);
+  }, [fractalParams, selectedFractal]);
 
   return (
     <div className="controls-panel modern-panel">
@@ -221,14 +177,13 @@ const ControlsPanel = React.memo(({ fractalParams, onParameterChange, selectedFr
           <SliderControl
             key={control.key}
             config={control}
-            onChange={handleSliderChange}
+            onChange={onParameterChange}
           />
         ))}
 
         <ColorPicker
           currentColor={fractalParams.color}
-          presetColors={presetColors}
-          onChange={handleColorChange}
+          onChange={(color) => onParameterChange('color', color)}
         />
       </div>
     </div>
