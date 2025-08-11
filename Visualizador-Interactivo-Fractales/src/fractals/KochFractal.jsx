@@ -435,33 +435,16 @@ const KochFractal = React.memo(({
     3 * Math.pow(4, kochConfig.maxIterations - 1);
 
   return (
-    <div className="fractal-canvas-container">
-      <canvas
-        ref={canvasRef}
-        className="fractal-canvas"
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'block',
-          cursor: isDragging ? 'grabbing' : 'grab'
-        }}
-      />
-      
-      <div className="fractal-info">
-        <div className="info-item">
-          <span className="info-label">Iteraciones:</span>
-          <span className="info-value">{kochConfig.maxIterations}/10</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Segmentos:</span>
-          <span className="info-value">{segmentCount.toLocaleString()}</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Controles:</span>
-          <span className="info-value">� Arrastra</span>
-        </div>
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fractal-canvas"
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'block',
+        cursor: isDragging ? 'grabbing' : 'grab'
+      }}
+    />
   );
 });
 

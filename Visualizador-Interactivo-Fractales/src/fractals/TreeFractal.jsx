@@ -253,36 +253,16 @@ const TreeFractal = React.memo(({
   }, [renderTree]);
 
   return (
-    <div className="fractal-canvas-container">
-      <canvas
-        ref={canvasRef}
-        className="fractal-canvas"
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'block',
-          cursor: isDragging ? 'grabbing' : 'grab'
-        }}
-      />
-      
-      <div className="fractal-info">
-        <div className="info-item">
-          <span className="info-label">Profundidad:</span>
-          <span className="info-value">{treeConfig.maxIterations}/20</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Ramas aprox:</span>
-          <span className="info-value">
-            {treeConfig.maxIterations === 0 ? '1' : 
-             Math.pow(2, treeConfig.maxIterations + 1) - 1}
-          </span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Controles:</span>
-          <span className="info-value">🖱️ Arrastra</span>
-        </div>
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fractal-canvas"
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'block',
+        cursor: isDragging ? 'grabbing' : 'grab'
+      }}
+    />
   );
 });
 

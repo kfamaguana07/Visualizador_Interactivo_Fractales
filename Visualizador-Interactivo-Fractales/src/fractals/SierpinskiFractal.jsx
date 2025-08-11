@@ -283,33 +283,16 @@ const SierpinskiFractal = React.memo(({
   const triangleCount = sierpinskiConfig.maxIterations === 0 ? 1 : Math.pow(3, sierpinskiConfig.maxIterations);
 
   return (
-    <div className="fractal-canvas-container">
-      <canvas
-        ref={canvasRef}
-        className="fractal-canvas"
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'block',
-          cursor: isDragging ? 'grabbing' : 'grab'
-        }}
-      />
-      
-      <div className="fractal-info">
-        <div className="info-item">
-          <span className="info-label">Iteraciones:</span>
-          <span className="info-value">{sierpinskiConfig.maxIterations}/7</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Triángulos:</span>
-          <span className="info-value">{triangleCount.toLocaleString()}</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Controles:</span>
-          <span className="info-value">🖱️ Arrastra</span>
-        </div>
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fractal-canvas"
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'block',
+        cursor: isDragging ? 'grabbing' : 'grab'
+      }}
+    />
   );
 });
 

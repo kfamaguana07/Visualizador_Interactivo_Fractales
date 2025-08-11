@@ -228,45 +228,13 @@ const JuliaFractal = ({
   }, [handleMouseDown, handleMouseMove, handleMouseUp, handleTouchStart, handleTouchMove, handleTouchEnd, handleWheel]);
 
   return (
-    <div className="fractal-canvas-container">
-      <canvas
-        ref={canvasRef}
-        className="fractal-canvas"
-        width={width}
-        height={height}
-        style={{ width: '100%', height: '100%', display: 'block', cursor: isDragging ? 'grabbing' : 'grab', background: 'transparent' }}
-      />
-      <div className="fractal-info">
-        <div className="info-item">
-          <span className="info-label">Iteraciones:</span>
-          <span className="info-value">{maxIterations}</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Parámetro C:</span>
-          <span className="info-value">({juliaC.re.toFixed(2)}, {juliaC.im.toFixed(2)})</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Color:</span>
-          <span className="info-value"><span style={{display:'inline-block',width:16,height:16,background:color,borderRadius:4,marginRight:4,border:'1px solid #ccc',verticalAlign:'middle'}}></span>{color}</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Zoom:</span>
-          <span className="info-value">{zoom.toFixed(2)}x</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Rotación:</span>
-          <span className="info-value">{rotation}°</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Centro:</span>
-          <span className="info-value">({(offsetX - currentTranslate.x / 200).toFixed(3)}, {(offsetY - currentTranslate.y / 200).toFixed(3)})</span>
-        </div>
-        <div className="info-item">
-          <span className="info-label">Controles:</span>
-          <span className="info-value">🖱️ Arrastra</span>
-        </div>
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fractal-canvas"
+      width={width}
+      height={height}
+      style={{ width: '100%', height: '100%', display: 'block', cursor: isDragging ? 'grabbing' : 'grab', background: 'transparent' }}
+    />
   );
 };
 
