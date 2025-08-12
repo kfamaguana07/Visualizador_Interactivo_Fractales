@@ -93,13 +93,13 @@ const JuliaFractal = ({
     const imgData = ctx.createImageData(width, height);
     const data = imgData.data;
 
-    // Si las iteraciones son 0, no dibujar nada (canvas transparente)
+    // Si las iteraciones son 0, no dibujar nada 
     if (maxIterations <= 0) {
       for (let i = 0; i < data.length; i += 4) {
         data[i] = 0;     // R
         data[i + 1] = 0; // G
         data[i + 2] = 0; // B
-        data[i + 3] = 0; // A (transparente)
+        data[i + 3] = 0; // A 
       }
       ctx.putImageData(imgData, 0, 0);
       return;
@@ -137,11 +137,11 @@ const JuliaFractal = ({
         
         const idx = 4 * (y * width + x);
         if (n === maxIterations) {
-          // Puntos del conjunto de Julia (transparente)
+          // Puntos del conjunto de Julia 
           data[idx] = 0;
           data[idx + 1] = 0;
           data[idx + 2] = 0;
-          data[idx + 3] = 0; // Transparente
+          data[idx + 3] = 0; 
         } else {
           // Gradiente del color base con intensidad basada en iteraciones
           const factor = Math.min(1, n / Math.max(1, maxIterations * 0.8));

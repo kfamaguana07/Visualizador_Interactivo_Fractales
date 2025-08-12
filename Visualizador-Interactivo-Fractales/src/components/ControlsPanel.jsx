@@ -119,7 +119,7 @@ const ControlsPanel = React.memo(({ fractalParams, onParameterChange, selectedFr
 
   const controlsConfig = useMemo(() => {
     const fractalConfigs = {
-      tree: { iterations: { max: 20 }, zoom: { max: 2 } },
+      tree: { iterations: { max: 15 }, zoom: { max: 2 } },
       sierpinski: { iterations: { max: 7 }, zoom: { max: 3 } },
       koch: { iterations: { max: 10 }, zoom: { max: 6 } },
       mandelbrot: { iterations: { max: 40 }, zoom: { max: 3 } },
